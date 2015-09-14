@@ -12,22 +12,24 @@
     <div class="container">
       <div id="chart">
         <canvas height="300" width="500"></canvas>
+      </div>
 
-        <div class="tooltip">
+      <div id="sidebar">
+        <div class="values">
           <div class="line line-1">
-            <div class="color"></div><span class="value"></span>
+            <div class="color"></div>
+            <span class="value"></span>
+            <span class="delta"></span>
           </div>
 
           <div class="line line-2">
-            <div class="color"></div><span class="value"></span>
+            <div class="color"></div>
+            <span class="value"></span>
+            <span class="delta"></span>
           </div>
-
-          <p class="events"></p>
         </div>
-      </div>
 
-      <div id="events">
-        <ul></ul>
+        <ul class="events"></ul>
       </div>
     </div>
   </body>
