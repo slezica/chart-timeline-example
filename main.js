@@ -1,83 +1,103 @@
 $(document).ready(function() {
-  var data = generateData()
-
-  var labels = _.pluck(data, 'label')
-  var values = _.pluck(data, 'value')
-  var events = _.pluck(data, 'event')
-
-  var chartData = {
-    labels: labels,
-    datasets: [
-      {
-          label: "Interesting data",
-          fillColor: "rgba(220,220,220,0.2)",
-          strokeColor: "rgba(220,220,220,1)",
-          pointColor: "rgba(220,220,220,1)",
-          pointStrokeColor: "#fff",
-          pointHighlightFill: "#fff",
-          pointHighlightStroke: "rgba(220,220,220,1)",
-          data: values
-      }
-    ]
-  }
+  var items = generateItems()
+  var data   = toChartData(items)
 
   var canvas = $('#chart canvas')
-  var line = new Chart(canvas[0].getContext('2d')).Line(chartData)
+  var line = new Chart(canvas[0].getContext('2d')).Line(data, { scaleUse2Y: true })
+
+  var selectedId = null
 
   canvas.mousemove(function(e) {
-    var ids = _.pluck(line.getPointsAtEvent(e), 'value.id')
-    highlightEvents(ids)
+    var points = _.pluck(line.getPointsAtEvent(e), 'value')
+
+    var id = (points.length > 0) ? points[0].id : null
+
+    if (id !== selectedId) {
+      selectedId = id
+      onInspectItem(items[id])
+    }
   })
 
   canvas.mouseleave(function() {
-    highlightEvents([])
+    onInspectItem(selectedId = null)
   })
 })
 
 
-highlightEvents = function highlightEvents(ids) {
-  var $ul = $('#events')
+function onInspectItem(item) {
+  $ul = $('#events ul')
+  var duration = 300 // fade in + fade out
 
-  $ul.find('li').each(function(i, li) {
-    var $li = $(li)
-    var id = $li.data('id')
+  $ul.fadeOut(duration / 2, function after() {
+    $ul.empty()
 
-    if (_.contains(ids, id)) {
-      if (id == ids[0]) {
-
-        $ul.scrollTop($li.height() * id)
-        // var scrollTop = $li.offset().top - $ul.offset().top + $ul.scrollTop()
-        // $ul.animate({ scrollTop: scrollTop }, 500)
-      }
-
-      $(li).addClass('highlighted')
-
-    } else {
-      $(li).removeClass('highlighted')
+    if (item) {
+      _.each(item.events, function(event) {
+        $('#events ul').append('<li>' + event + '</li>')
+      })
     }
 
+    $ul.fadeIn(duration / 2)
   })
 }
 
 
-function ChartValue(id, value) {
-  this.id = id
+function randInt(max) {
+  return Math.round(max * Math.random())
+}
+
+
+function ChartPoint(id, value) {
+  this.id    = id
   this.value = value
 }
 
-ChartValue.prototype.toString = function() {
+ChartPoint.prototype.toString = function() {
   return this.value.toString()
 }
 
 
-function generateData() {
-  return _.times(10, function(i) {
-    $('#events').append('<li data-id=' + i + '>Event ' + i + '</li>')
+function randomItem(id) {
+  return {
+    id    : id,
+    values: _.times(2, function(i) { return randInt(50) * (i + 1) }),
+    events: _.times(randInt(3) + 1, function(i) { return 'Event ' + id + ': ' + (i + 1) })
+  }
+}
 
-    return {
-      value: new ChartValue(i, Math.round(i * 100 * Math.random())),
-      event: 'Event ' + i,
-      label: 'Period ' + i
-    }
-  })
+function generateItems() {
+  return _.times(10, function(i) { return randomItem(i) })
+}
+
+function toChartData(items) {
+  var labels = _.times(items.length, function(i) { return 'Period ' + i })
+
+  return {
+    labels: labels,
+    datasets: [
+      {
+          label: "Dataset 1" ,
+          fillColor: "rgba(220,20,20,0.2)",
+          strokeColor: "rgba(220,20,20,1)",
+          pointColor: "rgba(220,20,20,1)",
+          pointStrokeColor: "#fff",
+          pointHighlightFill: "#fff",
+          pointHighlightStroke: "rgba(220,220,220,1)",
+          data: _.map(items, function(item) {
+            return new ChartPoint(item.id, item.values[0])
+          })
+      }, {
+          label: "Dataset 2",
+          fillColor: "rgba(20,20,110,0.2)",
+          strokeColor: "rgba(20,20,110,1)",
+          pointColor: "rgba(20,20,110,1)",
+          pointStrokeColor: "#fff",
+          pointHighlightFill: "#fff",
+          pointHighlightStroke: "rgba(220,220,220,1)",
+          data: _.map(items, function(item) {
+            return new ChartPoint(item.id, item.values[1])
+          })
+      }
+    ]
+  }
 }

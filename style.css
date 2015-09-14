@@ -21,21 +21,23 @@ body {
   float: left;
 }
 
-#events {
+#events ul {
   height: 320px;
   width: 180px;
   margin: 0;
   padding: 0;
   float: right;
-  overflow-y: scroll;
   list-style-type: none;
 }
 
 #events li {
   line-height: 70px;
-  border-bottom: 1px solid black;
 }
 
 #events li.highlighted {
   background-color: red;
+}
+
+#events li:not(:last-of-type) {
+  border-bottom: 1px solid black;
 }
