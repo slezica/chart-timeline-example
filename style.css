@@ -1,0 +1,41 @@
+body {
+  width: 710px;
+  margin: auto;
+}
+
+.container {
+  margin-top: 80px;
+  height: 320px;
+  border: 1px solid black;
+}
+
+.container:after {
+  display: block;
+  content: ' ';
+  clear: both;
+}
+
+#chart {
+  margin: auto;
+  padding: 10px;
+  float: left;
+}
+
+#events {
+  height: 320px;
+  width: 180px;
+  margin: 0;
+  padding: 0;
+  float: right;
+  overflow-y: scroll;
+  list-style-type: none;
+}
+
+#events li {
+  line-height: 70px;
+  border-bottom: 1px solid black;
+}
+
+#events li.highlighted {
+  background-color: red;
+}
