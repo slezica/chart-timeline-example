@@ -2,24 +2,33 @@ $(document).ready(function() {
   var items = generateItems()
   var data   = toChartData(items)
 
-  var canvas = $('#chart canvas')
-  var line = new Chart(canvas[0].getContext('2d')).Line(data, { scaleUse2Y: true })
+  var selectedItem = null
 
-  var selectedId = null
+  var canvas = $('#chart canvas')
+  var line = new Chart(canvas[0].getContext('2d')).Line(data, {
+    scaleUse2Y: true,
+    bezierCurve: false,
+
+    customTooltips: function(tooltip) {
+      if (! tooltip || ! selectedItem) return
+      tooltip.canvas = canvas
+      showTooltip(tooltip, selectedItem)
+    }
+  })
 
   canvas.mousemove(function(e) {
     var points = _.pluck(line.getPointsAtEvent(e), 'value')
 
     var id = (points.length > 0) ? points[0].id : null
 
-    if (id !== selectedId) {
-      selectedId = id
-      onInspectItem(items[id])
+    if (! selectedItem || id !== selectedItem.id) {
+      selectedItem = items[id]
+      onInspectItem(selectedItem)
     }
   })
 
   canvas.mouseleave(function() {
-    onInspectItem(selectedId = null)
+    onInspectItem(selectedItem = null)
   })
 })
 
@@ -76,28 +85,60 @@ function toChartData(items) {
     labels: labels,
     datasets: [
       {
-          label: "Dataset 1" ,
-          fillColor: "rgba(220,20,20,0.2)",
-          strokeColor: "rgba(220,20,20,1)",
-          pointColor: "rgba(220,20,20,1)",
-          pointStrokeColor: "#fff",
-          pointHighlightFill: "#fff",
-          pointHighlightStroke: "rgba(220,220,220,1)",
-          data: _.map(items, function(item) {
-            return new ChartPoint(item.id, item.values[0])
-          })
+        label: "Dataset 1" ,
+        fillColor: "transparent",
+        strokeColor: "rgba(220,20,20,1)",
+        pointColor: "rgba(220,20,20,1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(220,220,220,1)",
+        data: _.map(items, function(item) {
+          return new ChartPoint(item.id, item.values[0])
+        })
       }, {
-          label: "Dataset 2",
-          fillColor: "rgba(20,20,110,0.2)",
-          strokeColor: "rgba(20,20,110,1)",
-          pointColor: "rgba(20,20,110,1)",
-          pointStrokeColor: "#fff",
-          pointHighlightFill: "#fff",
-          pointHighlightStroke: "rgba(220,220,220,1)",
-          data: _.map(items, function(item) {
-            return new ChartPoint(item.id, item.values[1])
-          })
+        label: "Dataset 2",
+        fillColor: "transparent",
+        strokeColor: "rgba(20,20,110,1)",
+        pointColor: "rgba(20,20,110,1)",
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "rgba(220,220,220,1)",
+        data: _.map(items, function(item) {
+          return new ChartPoint(item.id, item.values[1])
+        })
       }
     ]
   }
+}
+
+//
+// console.log(
+//   $canvas.offset().left,
+//   $canvas.offset().top,
+//   tooltip.x + 'px',
+//   tooltip.y + 'px'
+// )
+
+function showTooltip(tooltip, item) {
+  $tooltip = $('#chart .tooltip')
+
+  $tooltip.hide()
+  if (! tooltip) return
+
+  $tooltip.css({
+    left: tooltip.canvas.offset().left + tooltip.x + 'px',
+    top: tooltip.canvas.offset().top + tooltip.y + 'px',
+  })
+
+  _.times(2, function(i) {
+    $line = $tooltip.find('.line-' + (i + 1))
+
+    $line.find('.color').css({ backgroundColor: tooltip.legendColors[i].fill })
+    $line.find('.value').text(item.values[i])
+    console.log($line.find('.value')[0]);
+  })
+
+  $tooltip.find('.events').text(item.events.length + ' events')
+
+  $tooltip.show()
 }

@@ -41,3 +41,51 @@ body {
 #events li:not(:last-of-type) {
   border-bottom: 1px solid black;
 }
+
+#chart .tooltip {
+  display: none;
+  position: absolute;
+
+  padding: 3px;
+  border-radius: 3px;
+
+  background: rgba(0, 0, 0, .7);
+  color: white;
+
+  -webkit-transition: all .1s ease;
+  transition: all .1s ease;
+
+  -webkit-transform: translate(-50%, 0);
+  transform: translate(-50%, 0);
+
+  pointer-events: none;
+}
+
+#chart .tooltip {
+  width: 120px;
+  text-align: center;
+}
+
+#chart .tooltip .line {
+  display: inline-block;
+}
+
+#chart .tooltip .color {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+#chart .tooltip .value {
+  line-height: 20px;
+}
+
+#chart .tooltip .events {
+
+}
+
+#chart .tooltip ul {
+  list-style-type: none;
+  padding-left: 5px;
+}
